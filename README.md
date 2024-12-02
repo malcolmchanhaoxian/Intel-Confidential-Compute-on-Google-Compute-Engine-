@@ -110,7 +110,7 @@ def get_token():
 
 Relying Party can perform a _curl_ request to obtain an attestation token
 ```
-curl -X POST http://10.148.0.11:5000/get_token \
+curl -X POST <IP-ADDRESS>/get_token \
      -H "Content-Type: application/json" \
      -d '{"policy-id": "POLICY-ID-NUMBER", "match-policy": true}' | jq -r '.data' > token.jwt
 ```
