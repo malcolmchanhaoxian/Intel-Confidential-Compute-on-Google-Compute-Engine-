@@ -59,9 +59,9 @@ trustauthority-cli version
 #Configure the URL and API key
 cat <<EOF | tee config.json
 {
- 	"trustauthority_url": "https://portal.trustauthority.intel.com",
- 	"trustauthority_api_url": "https://api.trustauthority.intel.com",
-    "trustauthority_api_key": "<attestation api key>"
+   "trustauthority_url": "https://portal.trustauthority.intel.com",
+   "trustauthority_api_url": "https://api.trustauthority.intel.com",
+   "trustauthority_api_key": "<attestation api key>"
 }
 EOF
 ```
