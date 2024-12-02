@@ -64,8 +64,7 @@ EOF
 ```
 
 #### Running Trust Authority CLI
-There are multiple commands you can run using the CLI but we are interested specifically in the ones that generated a valid attestation token (_trustauthority-cli token_)<br>
-You can use the help function to see all the optional arguemnets for the token function but the recommendation would be to use the following:
+There are multiple commands you can run using the CLI but we are interested specifically in the ones that generated a valid attestation token (_trustauthority-cli token_). You can use the help function to see all the optional arguemnets for the token function but the recommendation would be to use the below. For references, see [link](https://docs.trustauthority.intel.com/main/articles/integrate-go-tdx-cli.html)
 ```
 trustauthority-cli token -c <config.json file path> --policy-ids <policy ID number> --policy-must-match <boolean> --tdx true
 ```
@@ -75,8 +74,84 @@ trustauthority-cli token -c <config.json file path> --policy-ids <policy ID numb
 3. Set policy matching to True (Optional). The token generation will still run if policies does not match as it is up to the appraiser/relying party to verifiy if they should access the Trust Domain given the token results. 
 4. Set TDX to true to collect TDX evidence
 
-## Trust Workflow 
+## Trust Model 
 1. The trust model has three primary actors in the attestation workflow mainly; Attester, Verifier and Relying Party. Each actor establishes trust in a different way.
     - **Attester** — This is the confidential computing workload that needs to prove its authenticity and integrity to relying parties. Trust is established by collecting evidence from the attester; which is then evaluated by the verifier. This produces an **attestation token**
     - **Relying party** — This entity evaluates an attestation token by applying its own evaluation (appraisal) policy to determine if it should trust the attester for authorizing access or releasing a secret
     - **Verifier** — Intel Trust Authority
+
+<p align="center"><img src = "https://github.com/user-attachments/assets/dd05f380-4965-48be-8e57-46a435657d6a" width = "500"></p>
+
+#### Workflow
+1. The attesting workload obtains a quote from the Trust Domain by using the Intel Trust Authority CLI, which is also used to request an attestation token from Intel Trust Authority.
+2. Intel Trust Authority evaluates the quote and returns an attestation token.
+3. The workload forwards the attestation token to a REST API request by the Relying Party
+4. The Relying Party evaluates the token and applies its trust policy and compares values in the attestation token.
+5. If the release policy evaluation is successful (that is, all compared values match), trust is established.
+6. Detailed model which includes Key Broker services to encrypt/decrypt workload within Trust Domain; see [HERE] (https://docs.trustauthority.intel.com/main/articles/tutorial-tdx-workload.html)
+
+#### REST API Request
+Run a python script to establish REST API on the Attester VM. Successful API request will execute the Trust Authority CLI. See repository file for full python command.
+```
+def get_token():
+    """
+    Endpoint to execute the trustauthority-cli command with optional policy-id and match-policy flags.
+    """
+    # Parse JSON input from client
+    data = request.json
+    policy_id = data.get("policy-id", "").strip()
+    match_policy = data.get("match-policy", False)  # Default to False
+
+    # Base command
+    command = ['trustauthority-cli', 'token', '-c', 'config.json', '--tdx', 'true']
+    # Match Policies
+    command.extend(['--policy-ids', policy_id, '--policy-must-match')
+```
+
+Relying Party can perform a _curl_ request to obtain an attestation token
+```
+curl -X POST http://10.148.0.11:5000/get_token \
+     -H "Content-Type: application/json" \
+     -d '{"policy-id": "POLICY-ID-NUMBER", "match-policy": true}' | jq -r '.data' > token.jwt
+```
+
+#### Validate Token
+Once relying part obtains token, Relying Party can leverage many methods by the verfier to very and decode the token to get the token details. For simplicity, we will use just a jwt decoding functionality
+```
+pip install jwt
+jwt -show token.jwt
+```
+<br>
+A sample of the decoded token is included in this repository. There are many details provided but to establish trust on the attester - below are the minimum requirements
+
+- Verify the nonce (if present)
+- Verify that the token signature matches Intel Trust Authority certificates
+- Verify that the token has not expired
+- Check the lists of matched and unmatched policies
+- Check that the TEE debug flag is false
+
+```
+    "attester_tcb_date": "2024-03-13T00:00:00Z",
+    "attester_tcb_status": "OutOfDate",
+    "attester_type": "TDX",
+    "policy_ids_matched": [
+        {
+            "hash": "akNva0lUd0JlT1g0SVE1Y0pwckZtWEI1Y2c4MWJlVmJ1SWZjWEhjb0JRWW4yRktPR3VFTGc1WUt2VDNkRDhpbg==",
+            "id": "749dd9b1-234f-41f5-a6ca-42c4312dd4f1",
+            "version": "v1"
+        }
+    "policy_ids_unmatched": null,
+    "tdx_is_debuggable": false,
+```
+
+#### TCB Status
+As seen from the decoded token, the attestation is showing that the TCB status is out of date. The Intel platform TCB (Trusted Compute Base) comprises the components that are critical to meeting Intel's platform security objectives. Table below describes possible results of TCB status. More details [HERE] (https://docs.trustauthority.intel.com/main/articles/concept-platform-tcb.html)
+
+| TCB Status Value                | Description                                                                                             |
+|---------------------------------|---------------------------------------------------------------------------------------------------------|
+| **UpToDate**                    | The attesting platform is patched with the latest firmware and software and no known security advisories apply. |
+| **SWHardeningNeeded**           | The platform firmware and software are at the latest security patching level but there are vulnerabilities that can only be mitigated by software changes to the enclave or TD. |
+| **ConfigurationNeeded**         | The platform firmware and software are at the latest security patching level but there are platform hardware configurations required to mitigate vulnerabilities. |
+| **ConfigurationAndSWHardeningNeeded** | Both of the above.                                                                                     |
+| **OutOfDate**                   | The attesting platform software and/or firmware is not patched in accordance with the latest TCB Recovery (TCB-R). |
+| **OutOfDateConfigurationNeeded** | The attesting platform is not patched in accordance with the latest TCB-R. Hardware configuration is needed. |
