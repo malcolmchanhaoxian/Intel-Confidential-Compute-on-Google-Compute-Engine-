@@ -1,4 +1,7 @@
-# Intel-Confidential-Compute-on-Google-Compute-Engine-
+# Intel-Confidential-Compute-on-Google-Cloud
+
+![image](https://github.com/user-attachments/assets/64920924-9cec-4e1e-bb00-cc557efcb919)
+
 
 ## Introduction
 
