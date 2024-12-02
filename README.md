@@ -11,8 +11,10 @@ This project achieves following outcomes:
 #### A few things to note:
 
 1. The main difference here is that we are setting up a confidential compute virtual machine on cloud rather than on a baremetal so certain services are taken care for by the Cloud Hyperscaler. (https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/01/introduction#reading-guideline)
-2. At the time of this posting, creation of Intel TDX-enabled VM on Google Cloud is only possible by using API or Google Cloud Shell
-3. Intel TDX-enabled VM is enabled on Google Compute Engine C3 shape
+   <p align="center"><img src = "https://github.com/user-attachments/assets/b09015b6-ccf6-498c-8ec7-568acda35c3c" width = "700"></p>
+
+3. At the time of this posting, creation of Intel TDX-enabled VM on Google Cloud is only possible by using API or Google Cloud Shell
+4. Intel TDX-enabled VM is enabled on Google Compute Engine C3 shape
 
 
 ## VM Creation
@@ -31,6 +33,8 @@ gcloud compute instances create tdx-host \
     --provisioning-model=STANDARD \
     --service-account=732801563947-compute@developer.gserviceaccount.com \
 ```
+
+A recommended alternative is to replicate your usual VM creation code using the 'Equivalent Code' functionality in Google Cloud console. Then you can add the additional commands for TDX in the gcloudshell. 
 
 ## Configuring TDX Client Pre-requisites
 
@@ -71,5 +75,8 @@ trustauthority-cli token -c <config.json file path> --policy-ids <policy ID numb
 3. Set policy matching to True (Optional). The token generation will still run if policies does not match as it is up to the appraiser/relying party to verifiy if they should access the Trust Domain given the token results. 
 4. Set TDX to true to collect TDX evidence
 
-## Trust Workflow  
-
+## Trust Workflow 
+1. The trust model has three primary actors in the attestation workflow mainly; Attester, Verifier and Relying Party. Each actor establishes trust in a different way.
+    - **Attester** — This is the confidential computing workload that needs to prove its authenticity and integrity to relying parties. Trust is established by collecting evidence from the attester; which is then evaluated by the verifier. This produces an **attestation token**
+    - **Relying party** — This entity evaluates an attestation token by applying its own evaluation (appraisal) policy to determine if it should trust the attester for authorizing access or releasing a secret
+    - **Verifier** — Intel Trust Authority
