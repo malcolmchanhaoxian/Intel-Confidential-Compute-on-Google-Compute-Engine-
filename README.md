@@ -155,3 +155,11 @@ As seen from the decoded token, the attestation is showing that the TCB status i
 | **ConfigurationAndSWHardeningNeeded** | Both of the above.                                                                                     |
 | **OutOfDate**                   | The attesting platform software and/or firmware is not patched in accordance with the latest TCB Recovery (TCB-R). |
 | **OutOfDateConfigurationNeeded** | The attesting platform is not patched in accordance with the latest TCB-R. Hardware configuration is needed. |
+
+## Useful Links
+- https://docs.trustauthority.intel.com/main/articles/tutorial-tdx.html
+- https://docs.trustauthority.intel.com/main/articles/integrate-relying-party.html#relying-party-sample-workflow
+- https://portal.trustauthority.intel.com/certs
+- https://docs.trustauthority.intel.com/main/articles/concept-attestation-tokens.html?tabs=sgx%2Csgx-token
+- https://docs.trustauthority.intel.com/main/articles/concept-platform-tcb.html
+- https://docs.trustauthority.intel.com/main/articles/utility-policy-builder.html?tabs=sgx-json%2Ctdx-json%2Ctcb-json%2Csgx-custom-json%2Ctdx-custom-json%2Cv2-sgx-json%2Cv2-tdx-json%2Cv2-sevsp-json%2Cnvgpu-json%2Ctpm-json%2Ctdx-nvgpu-json%2Ctdx-tpm-json%2Csevnsnp-nvgpu-json%2Csevnsnp-tpm-json%2Ctdx-nvgpu-tpm-json#token-customization-policies
