@@ -34,7 +34,7 @@ gcloud compute instances create tdx-host \
     --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
     --maintenance-policy=TERMINATE \
     --provisioning-model=STANDARD \
-    --service-account=732801563947-compute@developer.gserviceaccount.com \
+    --service-account=<YOURACOUNT>@developer.gserviceaccount.com \
 ```
 
 A recommended alternative is to replicate your usual VM creation code using the 'Equivalent Code' functionality in Google Cloud console. Then you can add the additional commands for TDX in the gcloudshell. 
@@ -113,7 +113,7 @@ def get_token():
 
 Relying Party can perform a _curl_ request to obtain an attestation token
 ```
-curl -X POST <IP-ADDRESS>/get_token \
+curl -X POST <IP-ADDRESS>/run-command \
      -H "Content-Type: application/json" \
      -d '{"policy-id": "POLICY-ID-NUMBER", "match-policy": true}' | jq -r '.data' > token.jwt
 ```
