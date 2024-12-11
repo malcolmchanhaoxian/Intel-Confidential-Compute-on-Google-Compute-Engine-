@@ -15,7 +15,7 @@ def get_token():
     match_policy = data.get("match-policy", False)  # Default to False
 
     # Base command
-    command = ['trustauthority-cli', 'token', '-c', 'config.json', '--tdx', 'true']
+    command = ['sudo', 'trustauthority-cli', 'token', '-c', 'config.json', '--tdx', 'true']
 
     # Add policy-id if provided
     if policy_id:
