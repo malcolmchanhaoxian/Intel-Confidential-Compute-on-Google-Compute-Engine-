@@ -1,3 +1,3 @@
-curl -X POST <IP-ADDRESS>/get_token \
+curl -X POST <IP-ADDRESS>/get-command \
      -H "Content-Type: application/json" \
      -d '{"policy-id": "POLICY-ID-NUMBER", "match-policy": true}' | jq -r '.data' > token.jwt
